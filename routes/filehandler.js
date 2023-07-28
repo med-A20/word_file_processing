@@ -30,9 +30,9 @@ router.get('/', (req, res) => {
   </form>`);
 });
 
-router.post('/upload', (req, res) => {
+router.post('/upload',(req, res) => {
   let lastNumber = req.body.lastNumber;
-
+let id_cps = req.body.id_cps;
   // Check if a file was uploaded
   if (!req.files || Object.keys(req.files).length === 0) {
     res.status(400).send('No file was uploaded.');
@@ -71,22 +71,25 @@ router.post('/upload', (req, res) => {
        // Set the appropriate headers for the response
        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
        res.setHeader('Content-Disposition', 'attachment; filename="word-file.docx"');
- 
+       const sendToSpring= async()=>{
+
        // Send the modified Word file data as the response
       const formData = new FormData()
-      formData.append("wordFile", data);
-      formData.append("id_cps", '5467')
-      axios.post("http://142.132.189.215:8181/api/Cps/uploadWord", formData).then(rs => {
+      formData.append("WordFile", data);
+      formData.append("id_cps", id_cps);
+      await axios.post("http://142.132.189.215:8181/api/Cps/uploadWordCps", formData).then(rs => {
         console.log("done")
         res.status(200).send(data);
       }).catch(err =>{
         console.log(err)
         res.status(301).json({ message : "there is an error, A big one hhh "+ err})
       })
-
+       }
+        // send back to angular
+        res.status(200).send(data)
     });
-    deleteFolderContents('uploads') 
-    deleteFolderContents('processed')
+    //deleteFolderContents('uploads') 
+   // deleteFolderContents('processed')
   })
 });
 
@@ -95,5 +98,3 @@ router.post('/file', (req, res)=>{
 })
 
 module.exports = router;
-
-
